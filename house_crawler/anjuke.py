@@ -32,7 +32,8 @@ class anquke(object):
     def curl(self, url):
         with ghost.start() as session:
             page, resources = session.open(url)
-        print page.http_status
+        if page.http_status == 404:
+            return ''
         open("temp.html", "w").write(page.content)
         return page.content
 
@@ -47,7 +48,7 @@ class anquke(object):
             return ''
 
     def detail_parser(self, html):
-        html = open("temp.html").read()
+
         self.detail_body = etree.HTML(str(html))
         if self.detail_body.find('.//title').text == "对不起，您要浏览的网页可能被删除，重命名或者暂时不可用:":
             print 'secces'
@@ -87,6 +88,10 @@ class anquke(object):
             url = url_obj.get('href')
             detail_html = self.curl(url)
             print url
+            if not detail_html:
+                print "404"*10
+                continue
+
             self.detail_parser(detail_html)
 
     def run_all(self):
